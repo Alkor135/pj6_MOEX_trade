@@ -1,6 +1,7 @@
 from datetime import datetime  # Дата и время
 import time  # Подписка на события по времени
 
+import pandas as pd
 from QuikPy import QuikPy  # Работа с QUIK из Python через LUA скрипты QUIK
 
 
@@ -10,11 +11,35 @@ def print_callback(data):
     - Получение обезличенной сделки
     - Получение новой свечки
     """
+
+    # Преобразуем дату и время
+    datetime_str = datetime(
+        year=data['data']['datetime']['year'],
+        month=data['data']['datetime']['month'],
+        day=data['data']['datetime']['day'],
+        hour=data['data']['datetime']['hour'],
+        minute=data['data']['datetime']['min'],
+        second=data['data']['datetime']['sec']
+    )
+
+    # Создаем датафрейм
+    df = pd.DataFrame([{
+        'datetime': datetime_str,
+        'open': data['data']['open'],
+        'high': data['data']['high'],
+        'low': data['data']['low'],
+        'close': data['data']['close'],
+        'volume': data['data']['volume']
+    }])
+
+    df.index = df['datetime']  # Дата/время также будет индексом
+    print(df)
+
     # print(f'{datetime.now().strftime("%d.%m.%Y %H:%M:%S")} - {data["data"]}')  # Печатаем полученные данные
-    # Печатаем полученные данные
-    # print(f'{datetime.now().strftime("%d.%m.%Y %H:%M:%S")} - {data["data"]['datetime']}')  
-    if data['data']['interval'] == 5:
-        print(f'{datetime.now().strftime("%d.%m.%Y %H:%M:%S")} - {data["data"]}')  # Печатаем полученные данные
+    # # Печатаем полученные данные
+    # # print(f'{datetime.now().strftime("%d.%m.%Y %H:%M:%S")} - {data["data"]['datetime']}')  
+    # # if data['data']['interval'] == 5:
+    # #     print(f'{datetime.now().strftime("%d.%m.%Y %H:%M:%S")} - {data["data"]}')  # Печатаем полученные данные
 
 
 def changed_connection(data):
