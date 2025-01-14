@@ -4,6 +4,8 @@ from time import time
 import pandas as pd
 from QuikPy import QuikPy  # Работа с QUIK из Python через LUA скрипты QuikSharp
 
+from indicators import indicators
+
 
 def changed_connection(data):
     """Пользовательский обработчик событий:
@@ -20,6 +22,7 @@ class Bars:
         self.sec_code = security_code
         self.tf = tf
         self.df_bars = pd.DataFrame()
+        self.df_ind = pd.DataFrame()
         self.get_candles_from_provider()
 
 
@@ -85,14 +88,17 @@ class Bars:
             }])
 
             df.index = df['datetime']  # Дата/время также будет индексом
-            print(df)
+            # print(df)
             # print(df['datetime'].dtype)
             self.df_bars = (
                 pd.concat([self.df_bars, df])
                 .drop_duplicates(subset=['datetime'])
                 .sort_index(ascending=True)
                 )
-            print(self.df_bars)
+            
+            self.df_ind = self.df_ind.iloc[0:0]
+            self.df_ind = indicators.run(self.df_bars)
+            print(self.df_ind)
 
 
 if __name__ == '__main__':  # Точка входа при запуске этого скрипта
