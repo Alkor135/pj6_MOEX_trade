@@ -42,19 +42,24 @@ class Bars:
         new_bars = history['data']  # Получаем все бары из QUIK
         if len(new_bars) == 0:  # Если новых бар нет
             return pd.DataFrame()  # то выходим, дальше не продолжаем
-        self.df_bars = pd.json_normalize(new_bars).tail(288)  # Переводим список бар в pandas DataFrame
+        # Переводим список бар в pandas DataFrame
+        self.df_bars = pd.json_normalize(new_bars).tail(288)  
         self.df_bars.rename(
             columns={'datetime.year': 'year', 'datetime.month': 'month', 'datetime.day': 'day',
-            'datetime.hour': 'hour', 'datetime.min': 'minute', 'datetime.sec': 'second'}, inplace=True
+            'datetime.hour': 'hour', 'datetime.min': 'minute', 
+            'datetime.sec': 'second'}, inplace=True
             )  # Чтобы получить дату/время переименовываем колонки
         self.df_bars['datetime'] = pd.to_datetime(
             self.df_bars[['year', 'month', 'day', 'hour', 'minute', 'second']]
             )  # Собираем дату/время из колонок
-        # Отбираем нужные колонки. Дата и время нужны, чтобы не удалять одинаковые OHLCV на разное время
+        # Отбираем нужные колонки. Дата и время нужны, 
+        # чтобы не удалять одинаковые OHLCV на разное время
         self.df_bars = self.df_bars[['datetime', 'open', 'high', 'low', 'close', 'volume']]  
         self.df_bars.index = self.df_bars['datetime']  # Дата/время также будет индексом
-        self.df_bars.volume = pd.to_numeric(self.df_bars.volume, downcast='integer')  # Объемы могут быть только целыми
-        self.df_bars.drop_duplicates(keep='last', inplace=True)  # Могут быть получены дубли, удаляем их
+        # Объемы могут быть только целыми
+        self.df_bars.volume = pd.to_numeric(self.df_bars.volume, downcast='integer')  
+        # Могут быть получены дубли, удаляем их
+        self.df_bars.drop_duplicates(keep='last', inplace=True)  
         self.df_bars = self.df_bars.iloc[:-1]  # Удаление последней строки
         print(self.df_bars)
         # print(self.df_bars['datetime'].dtype)
@@ -139,7 +144,10 @@ if __name__ == '__main__':  # Точка входа при запуске это
     input('Enter - отмена\n')
     for interval in (1, 5,):  # (1, 60, 1440) = Минутки, часовки, дневки
         print(f'Отмена подписки на интервал {interval} '
-              f'{qp_provider.unsubscribe_from_candles(class_code, security_code, interval)["data"]}')
+              f'{qp_provider.unsubscribe_from_candles(
+                  class_code, security_code, interval
+                  )["data"]}'
+                  )
         print(f'Статус подписки на интервал {interval}: '
               f'{qp_provider.is_subscribed(class_code, security_code, interval)["data"]}')
 
